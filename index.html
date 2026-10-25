@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Free_bol – Free World Chat</title>
+<meta name="description" content="Free_bol: free, no-signup chat with people from all over the world, with instant translation.">
+<style>
+:root{--bg:#0b0d1a;--pn:#14172b;--cd:#1d2140;--bd:#2c3157;--pri:#ff3d5a;--pri2:#ff8a3d;--gr:#2ee6a0;--am:#ffb300;--tx:#f3f4fb;--mu:#9aa0c3}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif}
+html,body{height:100%}
+body{background:radial-gradient(1200px 600px at 80% -10%,#2a1d4d 0,transparent 60%),radial-gradient(900px 500px at -10% 110%,#3d1630 0,transparent 55%),var(--bg);color:var(--tx);display:flex;justify-content:center;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+.app{width:100%;max-width:820px;height:100dvh;display:flex;flex-direction:column;position:relative;background:rgba(10,12,28,.55);border-left:1px solid var(--bd);border-right:1px solid var(--bd);backdrop-filter:blur(10px)}
+.top{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--bd)}
+.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:grid;place-items:center;font-size:17px;flex:none}
+.chip{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--cd);border:1px solid var(--bd);border-radius:22px;padding:8px 14px;text-align:left}
+.chip b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chip i{margin-left:auto;font-style:normal;color:var(--mu)}
+.ppl{background:var(--cd);border:1px solid var(--bd);border-radius:22px;padding:8px 12px;font-size:14px;white-space:nowrap}
+.ppl:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gr);margin-right:6px;box-shadow:0 0 6px var(--gr)}
+#msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px}
+.row{max-width:82%;align-self:flex-start}.row.mine{align-self:flex-end}
+.bub{background:var(--cd);border:1px solid var(--bd);padding:9px 13px;border-radius:18px 18px 18px 5px}
+.mine .bub{background:linear-gradient(135deg,#ff3d5a,#d6286f);border-color:transparent;border-radius:18px 18px 5px 18px}
+.au{font-size:11px;font-weight:700;color:var(--pri2);margin-bottom:2px}.mine .au{display:none}
+.tx{font-size:15px;line-height:1.4;word-break:break-word;white-space:pre-wrap}
+.trl{font-size:13px;color:#a5e7ff;margin-top:5px;padding-top:5px;border-top:1px dashed rgba(255,255,255,.25);white-space:pre-wrap}
+.mine .trl{color:#fff}
+.tm{font-size:10px;color:rgba(255,255,255,.45);margin-top:4px;display:flex;justify-content:flex-end;gap:8px}
+.rep{font-size:10px;color:inherit;opacity:.6}
+.sys{align-self:center;font-size:12px;color:var(--am);background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.22);padding:4px 12px;border-radius:14px;text-align:center}
+#sug{display:none;gap:8px;padding:8px 14px 0;overflow-x:auto}#sug.show{display:flex}
+.sg{background:var(--cd);border:1px solid var(--pri2);border-radius:16px;padding:7px 12px;font-size:13px;white-space:nowrap;max-width:85%;overflow:hidden;text-overflow:ellipsis}
+.sg small{color:var(--pri2);margin-right:6px;font-weight:700}
+form{display:flex;gap:8px;align-items:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom));position:relative}
+#in{flex:1;min-width:0;background:var(--cd);border:1px solid var(--bd);border-radius:24px;padding:12px 18px;color:var(--tx);font-size:16px;outline:none}
+#in:focus{border-color:var(--pri)}
+.rb{width:42px;height:42px;border-radius:50%;background:var(--cd);border:1px solid var(--bd);font-size:19px;flex:none}
+.send{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2));font-size:18px;color:#fff;flex:none}\n .attach{width:42px;height:42px;border-radius:50%;background:var(--cd);border:1px solid var(--bd);font-size:22px;flex:none}\n .filecard{display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.12);border:1px solid var(--bd);padding:10px;border-radius:12px;max-width:260px}\n .filecard a{color:inherit;overflow-wrap:anywhere;font-size:13px}\n .uploadnote{font-size:12px;color:var(--mu);padding:0 14px 4px;min-height:0}
+.emo{position:absolute;bottom:68px;left:12px;background:var(--pn);border:1px solid var(--bd);border-radius:14px;padding:8px;display:none;grid-template-columns:repeat(8,1fr);gap:2px;z-index:5;max-width:92vw}
+.emo.show{display:grid}.emo button{font-size:22px;padding:4px;border-radius:6px}.emo button:hover{background:var(--cd)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:50;align-items:flex-end;justify-content:center}
+.ov.show{display:flex}
+.sheet{background:var(--pn);border:1px solid var(--bd);border-radius:22px 22px 0 0;width:100%;max-width:520px;max-height:82dvh;overflow-y:auto;padding:14px 16px calc(16px + env(safe-area-inset-bottom))}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:10px 4px;border-radius:14px;font-size:20px;background:var(--cd);border:1px solid transparent;position:relative}
+.tab.on{border-color:var(--pri);background:rgba(255,61,90,.12)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:14px 6px;text-align:center}
+.card.on{border-color:var(--pri)}.card span{font-size:28px;display:block}.card small{font-size:12px;display:block;margin-top:4px;line-height:1.2}
+.li{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:12px;text-align:left}
+.li:hover{background:var(--cd)}.li small{display:block;color:var(--mu);font-size:12px}
+.sd{width:10px;height:10px;border-radius:50%;flex:none}
+.ua{margin-left:auto;display:flex;gap:12px;font-size:17px}
+.note{font-size:13px;color:var(--mu);padding:8px}
+.sts{display:flex;gap:8px;margin-bottom:10px}
+.sts button{flex:1;padding:12px;border-radius:14px;background:var(--cd);border:1px solid transparent;font-size:18px}.sts button.on{border-color:var(--pri)}
+.in2{width:100%;background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:12px;color:var(--tx);font-size:16px;margin-bottom:10px}
+.btn{width:100%;background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:12px;padding:13px;font-weight:700;color:#fff}.btn:disabled{opacity:.5}
+.lk{display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:12px;color:var(--mu)}.lk a{text-decoration:underline;cursor:pointer}
+.mid{align-items:center}.mid .sheet{border-radius:22px;margin:16px}
+.sheet h2{margin-bottom:8px}.sheet p,.sheet li{font-size:13px;line-height:1.55;color:var(--mu);margin-bottom:8px}.sheet ul{padding-left:18px}
+.lbl{display:flex;gap:8px;font-size:12px;color:var(--mu);margin-bottom:12px;align-items:flex-start}.err{color:#fca5a5;font-size:12px;min-height:16px}
+@keyframes shake{0%{transform:translate(1px,1px)}20%{transform:translate(-5px,0) rotate(1deg)}40%{transform:translate(3px,-1px)}60%{transform:translate(-5px,1px)}80%{transform:translate(5px,1px) rotate(-1deg)}100%{transform:none}}
+.shake{animation:shake .5s ease-in-out}
+.typ{font-size:12px;color:var(--mu);padding:2px 16px;min-height:16px}
+.pic{max-width:240px;width:100%;border-radius:12px;display:block;cursor:zoom-in}
+.mini2{flex:1;background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:8px;font-size:13px}
+.cb{display:none}
+</style></head>
+<body><div class="app">
+ <div class="top"><div class="logo">⚡</div>
+  <button class="chip" id="chip"><span id="cI">🌍</span><b id="cN"></b><i>▾</i></button>
+  <button class="ppl cb" id="vc">📞</button><button class="ppl cb" id="vd">🎥</button><button class="ppl" id="ppl">0</button></div>
+ <div id="msgs" aria-live="polite"></div>
+ <div id="typ" class="typ"></div><div id="sug"></div><div id="uploadnote" class="uploadnote" aria-live="polite"></div><input type="file" id="pic" accept="image/*" hidden><input type="file" id="filepick" hidden>
+ <form id="f" autocomplete="off"><div class="emo" id="emo"></div>
+  <button type="button" class="rb" id="emb" aria-label="Emoji">🙂</button><button type="button" class="attach" id="attach" aria-label="Attach file" title="Attach file up to 25 MB">＋</button>
+  <input id="in" maxlength="300" aria-label="Message" enterkeyhint="send">
+  <button class="send" aria-label="Send">➤</button></form>
+</div>
+
+<div class="ov" id="sh"><div class="sheet" id="shb"></div></div>
+<div class="ov mid" id="call"><div class="sheet" style="max-width:420px;text-align:center;position:relative"><div id="cst" style="margin-bottom:8px">…</div><video id="rv" autoplay playsinline style="width:100%;border-radius:14px;background:#000;max-height:46dvh"></video><video id="lv" autoplay playsinline muted style="width:88px;position:absolute;right:26px;top:56px;border-radius:10px"></video><div class="sts" style="margin-top:12px"><button id="cmic">🎙</button><button id="ccam">📷</button><button id="cend" style="background:#c0152f">📵</button></div></div></div>
+<div class="ov mid" id="inc"><div class="sheet" style="text-align:center"><h2 id="incn"></h2><p id="inct"></p><div class="sts"><button id="inca">✅</button><button id="incd">❌</button></div></div></div>
+<div class="ov mid show" id="join"><div class="sheet">
+ <h2>⚡ Free_bol</h2><p data-i="welcome"></p><p style="margin-top:6px">🌍 Public rooms · 🔒 Private chats · ⚡ Buzz · 🌐 Translation · 📞 Calls · 📎 Files up to 25 MB · 🤖 FreebolBot</p>
+ <input class="in2" id="nick" maxlength="20" aria-label="Nickname" style="margin-top:8px">
+ <label class="lbl"><input type="checkbox" id="agree" style="margin-top:3px"><span><span data-i="agree"></span> <a data-doc="terms" style="color:var(--pri);cursor:pointer">Terms</a> · <a data-doc="privacy" style="color:var(--pri);cursor:pointer">Privacy</a></span></label>
+ <div class="err" id="err"></div><button class="btn" id="go" disabled data-i="enter"></button></div></div>
+<div class="ov mid" id="doc"><div class="sheet"><div id="docBody"></div><button class="btn" id="docClose" style="margin-top:10px">OK</button></div></div>
+
+<script type="module">
+const ROOMS=[
+ {id:"world",name:"World Lounge",icon:"🌍",desc:"Everyone, every language"},
+ {id:"langx",name:"Language Exchange",icon:"🗣️",desc:"Practice languages with natives"},
+ {id:"india",name:"India Chaupal",icon:"🇮🇳",desc:"Delhi, Mumbai, Mewar & more"},
+ {id:"usa",name:"USA & Canada",icon:"🗽",desc:"North America"},
+ {id:"latam",name:"Latinoamérica",icon:"🌎",desc:"Español & Português"},
+ {id:"europe",name:"Europe",icon:"🏰",desc:"EU, UK & beyond"},
+ {id:"arab",name:"العالم العربي",icon:"🕌",desc:"Arab world"},
+ {id:"asia",name:"Asia Pacific",icon:"🏯",desc:"China, Japan, Korea, SEA, Oceania"},
+ {id:"africa",name:"Africa",icon:"🦁",desc:"Pan-African chat"},
+ {id:"tech",name:"Tech & AI",icon:"💻",desc:"Apps, AI, code"},
+ {id:"music",name:"Music & Movies",icon:"🎵",desc:"Bollywood, Hollywood & more"},
+ {id:"sports",name:"Cricket & Sports",icon:"🏏",desc:"Cricket, football & more"}
+];
+const I={
+en:{tag:"Chugli App",rooms:"Rooms",buddies:"Buddies",chats:"Private chats",nobud:"Add buddies from the user list (👥).",auto:"Auto-translate",invite:"Invite",foot:"Public rooms. Anyone can read. Don't share personal info.",welcome:"Free chat with the whole world. No signup. Pick a nickname.",agree:"I am 13+ and agree to",enter:"Enter",nick:"Nickname",type:"Type a message…",here:"here now",nob:"No one else here yet. Invite friends!"},
+hi:{tag:"चुगली ऐप",rooms:"कमरे",buddies:"दोस्त",chats:"निजी चैट",nobud:"यूज़र सूची (👥) से दोस्त जोड़ें।",auto:"ऑटो-अनुवाद",invite:"न्योता",foot:"सार्वजनिक कमरे। कोई भी पढ़ सकता है। निजी जानकारी साझा न करें।",welcome:"पूरी दुनिया से मुफ़्त चैट। साइन-अप नहीं। उपनाम चुनें।",agree:"मैं 13+ हूँ और सहमत हूँ:",enter:"प्रवेश करें",nick:"उपनाम",type:"संदेश लिखें…",here:"अभी यहाँ",nob:"अभी कोई और नहीं। दोस्तों को बुलाएँ!"},
+es:{tag:"App de Chisme",rooms:"Salas",buddies:"Amigos",chats:"Chats privados",nobud:"Añade amigos desde la lista (👥).",auto:"Traducir auto",invite:"Invitar",foot:"Salas públicas. Cualquiera puede leer. No compartas datos personales.",welcome:"Chat gratis con todo el mundo. Sin registro. Elige un apodo.",agree:"Tengo 13+ y acepto",enter:"Entrar",nick:"Apodo",type:"Escribe un mensaje…",here:"aquí ahora",nob:"Nadie más aún. ¡Invita amigos!"},
+fr:{tag:"Appli Potins",rooms:"Salons",buddies:"Amis",chats:"Chats privés",nobud:"Ajoutez des amis via la liste (👥).",auto:"Trad. auto",invite:"Inviter",foot:"Salons publics. Tout le monde peut lire. Ne partagez pas d'infos perso.",welcome:"Chat gratuit avec le monde entier. Sans inscription. Choisissez un pseudo.",agree:"J'ai 13+ ans et j'accepte",enter:"Entrer",nick:"Pseudo",type:"Écrivez un message…",here:"ici",nob:"Personne d'autre. Invitez des amis !"},
+ar:{tag:"تطبيق الدردشة",rooms:"الغرف",buddies:"الأصدقاء",chats:"محادثات خاصة",nobud:"أضف أصدقاء من قائمة المستخدمين (👥).",auto:"ترجمة تلقائية",invite:"دعوة",foot:"غرف عامة. يمكن للجميع القراءة. لا تشارك معلومات شخصية.",welcome:"دردشة مجانية مع العالم. بدون تسجيل. اختر اسمًا.",agree:"عمري 13+ وأوافق على",enter:"دخول",nick:"الاسم المستعار",type:"اكتب رسالة…",here:"هنا الآن",nob:"لا أحد بعد. ادعُ أصدقاءك!"},
+zh:{tag:"闲聊应用",rooms:"聊天室",buddies:"好友",chats:"私聊",nobud:"从用户列表 (👥) 添加好友。",auto:"自动翻译",invite:"邀请",foot:"公共聊天室，任何人可见。请勿分享个人信息。",welcome:"与全世界免费聊天，无需注册。请选择昵称。",agree:"我已满13岁并同意",enter:"进入",nick:"昵称",type:"输入消息…",here:"在线",nob:"暂无其他人，邀请朋友吧！"},
+pt:{tag:"App de Fofoca",rooms:"Salas",buddies:"Amigos",chats:"Chats privados",nobud:"Adicione amigos pela lista (👥).",auto:"Traduzir auto",invite:"Convidar",foot:"Salas públicas. Qualquer um pode ler. Não compartilhe dados pessoais.",welcome:"Chat grátis com o mundo todo. Sem cadastro. Escolha um apelido.",agree:"Tenho 13+ e aceito",enter:"Entrar",nick:"Apelido",type:"Digite uma mensagem…",here:"aqui agora",nob:"Ninguém ainda. Convide amigos!"},
+ru:{tag:"Болталка",rooms:"Комнаты",buddies:"Друзья",chats:"Личные чаты",nobud:"Добавляйте друзей из списка (👥).",auto:"Автоперевод",invite:"Пригласить",foot:"Публичные комнаты. Читать может любой. Не делитесь личными данными.",welcome:"Бесплатный чат со всем миром. Без регистрации. Выберите ник.",agree:"Мне 13+, я принимаю",enter:"Войти",nick:"Ник",type:"Введите сообщение…",here:"сейчас здесь",nob:"Пока никого. Пригласите друзей!"},
+bn:{tag:"গল্পের অ্যাপ",rooms:"রুম",buddies:"বন্ধু",chats:"ব্যক্তিগত চ্যাট",nobud:"ইউজার তালিকা (👥) থেকে বন্ধু যোগ করুন।",auto:"অটো-অনুবাদ",invite:"আমন্ত্রণ",foot:"পাবলিক রুম। যে কেউ পড়তে পারে। ব্যক্তিগত তথ্য দেবেন না।",welcome:"সারা বিশ্বের সাথে ফ্রি চ্যাট। সাইন-আপ নেই। ডাকনাম দিন।",agree:"আমার বয়স ১৩+ এবং আমি সম্মত",enter:"প্রবেশ",nick:"ডাকনাম",type:"বার্তা লিখুন…",here:"এখন আছেন",nob:"আর কেউ নেই। বন্ধুদের ডাকুন!"},
+ja:{tag:"おしゃべりアプリ",rooms:"ルーム",buddies:"友だち",chats:"個人チャット",nobud:"ユーザー一覧 (👥) から友だち追加。",auto:"自動翻訳",invite:"招待",foot:"公開ルームです。誰でも読めます。個人情報は共有しないで。",welcome:"世界中と無料チャット。登録不要。ニックネームを選んでください。",agree:"13歳以上で同意します",enter:"入室",nick:"ニックネーム",type:"メッセージを入力…",here:"オンライン",nob:"まだ誰もいません。友だちを招待！"},
+de:{tag:"Klatsch-App",rooms:"Räume",buddies:"Freunde",chats:"Privatchats",nobud:"Freunde über die Nutzerliste (👥) hinzufügen.",auto:"Auto-Übersetzen",invite:"Einladen",foot:"Öffentliche Räume. Jeder kann lesen. Keine privaten Daten teilen.",welcome:"Kostenlos mit der ganzen Welt chatten. Ohne Anmeldung. Spitznamen wählen.",agree:"Ich bin 13+ und akzeptiere",enter:"Betreten",nick:"Spitzname",type:"Nachricht schreiben…",here:"jetzt hier",nob:"Noch niemand da. Freunde einladen!"},
+id:{tag:"Aplikasi Ngobrol",rooms:"Ruang",buddies:"Teman",chats:"Chat pribadi",nobud:"Tambah teman dari daftar pengguna (👥).",auto:"Terjemah otomatis",invite:"Undang",foot:"Ruang publik. Siapa saja bisa membaca. Jangan bagikan data pribadi.",welcome:"Chat gratis dengan seluruh dunia. Tanpa daftar. Pilih nama panggilan.",agree:"Saya 13+ dan setuju",enter:"Masuk",nick:"Nama panggilan",type:"Ketik pesan…",here:"di sini",nob:"Belum ada orang. Undang teman!"}
+};
+const DOCS={
+ terms:`<h2>Terms &amp; Rules</h2><ul><li>Be respectful. No abuse, hate, threats, harassment or spam.</li><li>No sexual content, nothing involving minors, no illegal content, scams or phishing.</li><li>Don't share phone numbers, addresses, OTPs or bank details. Rooms are public.</li><li>You must be 13 or older.</li><li>Messages may be removed and users blocked. Use "report" on any message.</li><li>Provided free, "as is", without warranty.</li></ul>`,
+ privacy:`<h2>Privacy</h2><ul><li>No name, email or phone is required.</li><li>We store nickname, message text, time and an anonymous ID.</li><li>Messages are NOT end-to-end encrypted. Translation sends message text to an AI service.</li><li>Nickname and language are saved in your browser.</li><li>We never read your social-media accounts or contacts.</li></ul>`
+};
+const $=s=>document.getElementById(s);
+const nickOK=n=>/^[\p{L}\p{N}_ .-]{2,20}$/u.test(n);
+const ST={on:"#2ee6a0",away:"#ffb300",busy:"#ff3d5a",inv:"#6b7280"},SI={on:"🟢",away:"🟡",busy:"🔴",inv:"⚫"};
+const EMO="😀😂😍😎😢😡👍🙏❤️🔥🎉🤝😉🥳😴🤔👋🙌💯🌍🏏🎵☕🍕".match(/\p{Extended_Pictographic}(\uFE0F)?/gu);
+const SM=[[":)","🙂"],[":D","😄"],[":(","🙁"],[";)","😉"],[":P","😛"],["<3","❤️"],[":o","😮"],["B)","😎"]];
+const dev=(navigator.language||"en").slice(0,2).toLowerCase();
+const lang=I[dev]?dev:"en";
+const lname=c=>{try{return new Intl.DisplayNames(["en"],{type:"language"}).of(c)}catch{return c}};
+const t=k=>(I[lang]&&I[lang][k])||I.en[k]||"";
+document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));
+$("nick").placeholder=t("nick");$("in").placeholder=t("type");
+document.addEventListener("click",e=>{const d=e.target.closest("[data-doc]");if(d){$("docBody").innerHTML=DOCS[d.dataset.doc];$("doc").classList.add("show")}});
+$("docClose").onclick=()=>$("doc").classList.remove("show");
+$("sh").onclick=e=>{if(e.target===$("sh"))$("sh").classList.remove("show")};
+try{$("nick").value=localStorage.getItem("fb_nick")||""}catch{}
+const chk=()=>{$("go").disabled=!($("agree").checked&&nickOK($("nick").value.trim()))};
+$("agree").onchange=$("nick").oninput=chk;chk();
+/* ===== PASTE YOUR FIREBASE CONFIG HERE (see steps) ===== */
+const firebaseConfig={apiKey:"AIzaSyAsBBERf9tG18XKXjsGhc4iPe5Q6PZx1AE",authDomain:"freebol-f779c.firebaseapp.com",databaseURL:"https://freebol-f779c-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"freebol-f779c",appId:"1:543638845776:web:7784ec881f334703555455"};
+const V="10.14.1",G="https://www.gstatic.com/firebasejs/"+V+"/";
+let FB=null,uid="",nick="",cur=null,pr=null,offs=[],lastSend=0,joinedAt=0,peers=[],buddies={},dms={},trC={},q=Promise.resolve(),blocked=new Set(),stat="on",smsg="",tab="r",extra=[],pc=null,ls=null,callUnsubs=[],callPair=null,snd=true,typT=null,lastTyp=0,unread=0,av=(()=>{try{return localStorage.getItem("fb_av")||"😎"}catch{return "😎"}})(),cc=(()=>{const r=(navigator.language||"").split("-")[1];return r&&r.length===2?String.fromCodePoint(...[...r.toUpperCase()].map(c=>127397+c.charCodeAt())):""})();
+async function boot(){if(FB)return true;
+  if(firebaseConfig.apiKey.startsWith("YOUR_")){$("err").textContent="Setup needed: add your Firebase config in index.html";return false}
+  try{const [a,b,c,d]=await Promise.all([import(G+"firebase-app.js"),import(G+"firebase-auth.js"),import(G+"firebase-database.js"),import(G+"firebase-storage.js")]);
+   const app=a.initializeApp(firebaseConfig);const au=b.getAuth(app);FB={...c,db:c.getDatabase(app),storage:d.getStorage(app),storageApi:d,auth:au};uid=(await b.signInAnonymously(au)).user.uid;watchInbox();return true}
+  catch(e){$("err").textContent="Could not connect. Check internet and Firebase setup.";return false}}
+const mm=c=>c==="zh"?"zh-CN":c;
+async function tr(text,from,to){const r=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.slice(0,200))+"&langpair="+mm(from)+"|"+mm(to));
+  const j=await r.json(),x=j&&j.responseData&&j.responseData.translatedText;if(!x||/MYMEMORY|QUERY LENGTH|INVALID/i.test(x))throw 0;return x}
+$("go").onclick=async()=>{nick=$("nick").value.trim();if(!nickOK(nick)){$("err").textContent="2-20";return}
+  $("go").disabled=true;if(!await boot()){$("go").disabled=false;return}
+  try{localStorage.setItem("fb_nick",nick)}catch{}
+  $("join").classList.remove("show");
+  EMO.forEach(e=>{const b=document.createElement("button");b.type="button";b.textContent=e;b.onclick=()=>{$("in").value+=e;$("in").focus()};$("emo").appendChild(b)});
+  trayActions();loadRooms();loadBuddies();enter({type:"room",id:"world",name:"World Lounge",icon:"🌍",path:"messages/world"})};
+$("emb").onclick=()=>$("emo").classList.toggle("show");
+$("chip").onclick=()=>sheet("r");$("ppl").onclick=()=>sheet("u");
+
+function setPres(){if(pr)FB.set(pr,{uid,name:nick,st:stat,msg:smsg,lang:dev,av,cc})}
+function head(){$("cI").textContent=cur.icon;$("cN").textContent=cur.name;$("ppl").textContent=peers.filter(p=>p.presence.st!=="inv"||p.isMe).length}
+const mkTab=(k,ic)=>{const b=document.createElement("button");b.className="tab"+(tab===k?" on":"");b.textContent=ic;b.onclick=()=>sheet(k);return b};
+function sheet(k){tab=k;const b=$("shb");b.textContent="";
+  const tb=document.createElement("div");tb.className="tabs";[["r","🌍"],["b","⭐"],["c","💬"],["u","👥"],["m",SI[stat]+"🙂"]].forEach(([a,i])=>tb.appendChild(mkTab(a,i)));b.appendChild(tb);
+  if(k==="r"){const g=document.createElement("div");g.className="grid";
+    allRooms().forEach(r=>{const c=document.createElement("button");c.className="card"+(cur&&cur.id===r.id?" on":"");c.innerHTML="<span></span><small></small>";c.firstChild.textContent=r.icon;c.lastChild.textContent=r.name;
+      c.onclick=()=>{enter({type:"room",id:r.id,name:r.name,icon:r.icon,path:"messages/"+r.id});$("sh").classList.remove("show")};g.appendChild(c)});const nw=document.createElement("button");nw.className="card";nw.innerHTML="<span>➕</span><small></small>";nw.lastChild.textContent="New room";nw.onclick=newRoom;g.appendChild(nw);b.appendChild(g)}
+  else if(k==="u"){const vis=peers.filter(p=>p.presence.st!=="inv"||p.isMe);
+    if(vis.length<2)note(b,t("nob"));
+    vis.forEach(p=>{const d=p.presence,r=li((d.av||"🙂")+" "+d.name+(p.isMe?" ✓":"")+" "+(d.cc||""),d.msg,ST[d.st]||ST.on);
+      if(!p.isMe){const a=document.createElement("div");a.className="ua";
+        [["💬",()=>{$("sh").classList.remove("show");openDM(d)}],[buddies[d.uid]?"⭐":"☆",()=>toggleBuddy(d)],["🚫",()=>{blocked.add(d.uid);sheet("u")}]].forEach(([x,f])=>{const s=document.createElement("span");s.textContent=x;s.onclick=e=>{e.stopPropagation();f()};a.appendChild(s)});r.appendChild(a)}b.appendChild(r)})}
+  else if(k==="b"){const ks=Object.keys(buddies);if(!ks.length)note(b,t("nobud"));
+    ks.forEach(x=>{const on=peers.find(p=>p.presence.uid===x),r=li(buddies[x],on?"":"offline",on?ST[on.presence.st]||ST.on:ST.inv);r.onclick=()=>{$("sh").classList.remove("show");openDM({uid:x,name:buddies[x]})};b.appendChild(r)})}
+  else if(k==="c"){const ks=Object.keys(dms);if(!ks.length)note(b,"💬");
+    ks.forEach(x=>{const r=li(dms[x].name,"",ST.on);r.onclick=()=>{$("sh").classList.remove("show");openDM(dms[x])};b.appendChild(r)})}
+  else{const s=document.createElement("div");s.className="sts";
+    Object.keys(SI).forEach(x=>{const e=document.createElement("button");e.textContent=SI[x];e.className=x===stat?"on":"";e.onclick=()=>{stat=x;setPres();sheet("m")};s.appendChild(e)});b.appendChild(s);
+    const i=document.createElement("input");i.className="in2";i.maxLength=40;i.placeholder="✍️ …";i.value=smsg;i.onchange=()=>{smsg=i.value;setPres()};b.appendChild(i);
+    const ar=document.createElement("div");ar.className="sts";ar.style.flexWrap="wrap";
+    ["😎","😀","🥳","🦁","🐯","🦊","🐼","🤖","👽","🌸","🔥","🏏"].forEach(x=>{const e=document.createElement("button");e.style.flex="0 0 15%";e.textContent=x;e.className=x===av?"on":"";e.onclick=()=>{av=x;try{localStorage.setItem("fb_av",x)}catch{}setPres();sheet("m")};ar.appendChild(e)});b.appendChild(ar);
+    const sn=document.createElement("button");sn.className="in2";sn.style.textAlign="left";sn.textContent=snd?"🔔 Sound: on":"🔕 Sound: off";sn.onclick=()=>{snd=!snd;sheet("m")};b.appendChild(sn);
+    const v=document.createElement("button");v.className="btn";v.textContent="🔗 "+t("invite");v.onclick=invite;b.appendChild(v);
+    const l=document.createElement("div");l.className="lk";l.innerHTML='<a data-doc="terms">Terms</a><a data-doc="privacy">Privacy</a><a href="mailto:freemartindia@gmail.com">Contact</a>';b.appendChild(l)}
+  $("sh").classList.add("show")}
+function note(b,x){const n=document.createElement("div");n.className="note";n.textContent=x;b.appendChild(n)}
+function li(name,sub,col){const r=document.createElement("button");r.className="li";r.innerHTML='<span class="sd"></span><div style="min-width:0"><div class="n"></div><small></small></div>';
+  r.querySelector(".sd").style.background=col;r.querySelector(".n").textContent=String(name).slice(0,24);r.querySelector("small").textContent=String(sub||"").slice(0,40);return r}
+
+
+function openDM(p){const o=p.uid;if(!o||o===uid)return;const k=[uid,o].sort().join("_");dms[k]={name:p.name,uid:o};
+  enter({type:"dm",id:k,name:"🔒 "+p.name,icon:"💬",path:"dm/"+k})}
+async function enter(c){
+  offs.forEach(f=>{try{f()}catch{}});offs=[];if(pr){FB.set(pr,null);pr=null}
+  peers=[];cur=c;joinedAt=Date.now();head();$("vc").style.display=$("vd").style.display=c.type==="dm"?"block":"none";$("typ").textContent="";$("msgs").textContent="";$("sug").classList.remove("show");
+  addSys(c.type==="dm"?"Private chat · not end-to-end encrypted":"Be nice. Rooms are public.");
+  offs.push(FB.onChildAdded(FB.query(FB.ref(FB.db,c.path),FB.limitToLast(40)),s=>render(s.key,s.val())));
+  if(c.type==="room"){pr=FB.ref(FB.db,"presence/"+c.id+"/"+uid);setPres();FB.onDisconnect(pr).remove();
+    offs.push(FB.onValue(FB.ref(FB.db,"presence/"+c.id),s=>{const v=s.val()||{};peers=Object.values(v).filter(d=>d&&d.uid).map(d=>({isMe:d.uid===uid,presence:d}));head();showTyp();if(tab==="u"&&$("sh").classList.contains("show"))sheet("u")}))}
+}
+function shake(){document.body.classList.remove("shake");void document.body.offsetWidth;document.body.classList.add("shake");navigator.vibrate&&navigator.vibrate(200)}
+async function loadBuddies(){try{const s=await FB.get(FB.ref(FB.db,"users/"+uid+"/buddies"));buddies=s.val()||{}}catch{}}
+async function toggleBuddy(d){if(buddies[d.uid])delete buddies[d.uid];else buddies[d.uid]=String(d.name).slice(0,20);
+  try{await FB.set(FB.ref(FB.db,"users/"+uid+"/buddies"),buddies)}catch{}sheet("u")}
+function addSys(m){const d=document.createElement("div");d.className="sys";d.textContent=m;$("msgs").appendChild(d);$("msgs").scrollTop=1e9}
+function render(key,m){
+  if(blocked.has(m.uid))return;
+  if(m.type==="buzz"){addSys("⚡ "+String(m.name||"?").slice(0,20));if(m.uid!==uid&&m.ts&&m.ts>joinedAt-2000&&Date.now()-m.ts<8000)shake();return}
+  const mine=m.uid===uid,row=document.createElement("div");row.className="row"+(mine?" mine":"");
+  row.innerHTML='<div class="bub"><div class="au"></div><div class="tx"></div><div class="trl" hidden></div><div class="tm"><span class="t"></span><button class="rep">⚑</button></div></div>';
+  const txt=String(m.text||"").slice(0,300);
+  row.querySelector(".au").textContent=(m.av?String(m.av).slice(0,8)+" ":"")+String(m.name||"").slice(0,20);row.querySelector(".tx").textContent=txt;
+  if(m.type==="img"&&/^data:image\/jpeg;base64,/.test(m.img||"")){const im=document.createElement("img");im.src=m.img;im.className="pic";im.alt="photo";
+    im.onclick=()=>{const b=$("docBody");b.textContent="";const z=document.createElement("img");z.src=m.img;z.style.cssText="width:100%;border-radius:12px";b.appendChild(z);$("doc").classList.add("show")};
+    const tx=row.querySelector(".tx");tx.textContent="";tx.appendChild(im)}
+  if(m.type==="file"&&typeof m.fileUrl==="string"&&/^https:\/\//i.test(m.fileUrl)){
+    const tx=row.querySelector(".tx");tx.textContent="";
+    const card=document.createElement("div");card.className="filecard";
+    const ico=document.createElement("span");ico.textContent=(m.mime||"").startsWith("image/")?"🖼️":(m.mime||"").startsWith("video/")?"🎬":"📎";card.appendChild(ico);
+    const a=document.createElement("a");a.href=m.fileUrl;a.target="_blank";a.rel="noopener noreferrer";a.textContent=String(m.fileName||"Download file").slice(0,120);a.download=String(m.fileName||"file").slice(0,120);card.appendChild(a);
+    const info=document.createElement("small");info.textContent=Number(m.size)>0?(Number(m.size)/1048576).toFixed(2)+" MB":"";card.appendChild(info);tx.appendChild(card)
+  }
+  row.querySelector(".t").textContent=m.ts?new Date(m.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"";
+  const t2=row.querySelector(".trl"),rep=row.querySelector(".rep"),show=v=>{t2.hidden=false;t2.textContent=v};
+  if(mine)rep.remove();else rep.onclick=async()=>{if(!confirm("Report this message?"))return;
+    try{await FB.push(FB.ref(FB.db,"reports"),{by:uid,from:m.uid,path:cur.path,key,text:txt,ts:FB.serverTimestamp()});rep.textContent="✓";rep.disabled=true}catch{}};
+  if(!mine&&m.lang&&m.lang!==dev){
+    if(trC[key])show(trC[key]);
+    else q=q.then(async()=>{try{trC[key]=String(await tr(txt,m.lang,dev)).slice(0,600);show(trC[key])}catch{}})}
+  const c=$("msgs");c.appendChild(row);c.scrollTop=c.scrollHeight;
+  if(!mine&&m.ts&&m.ts>joinedAt)notify();
+}
+let sT=null,sN=0;
+$("in").oninput=()=>{typing();clearTimeout(sT);sN++;const s=$("sug");s.textContent="";s.classList.remove("show");
+  const v=$("in").value.trim();if(v.length<3||!cur)return;
+  const ls=[...new Set(peers.filter(p=>!p.isMe&&p.presence.lang&&p.presence.lang!==dev).map(p=>p.presence.lang))].slice(0,3);
+  if(!ls.length)return;
+  sT=setTimeout(()=>{const n=sN;ls.forEach(async l=>{try{const x=String(await tr(v,dev,l)).slice(0,300);if(n!==sN||!x)return;
+    const b=document.createElement("button");b.type="button";b.className="sg";b.innerHTML="<small></small><span></span>";b.firstChild.textContent=lname(l).slice(0,3).toUpperCase();b.lastChild.textContent=x;
+    b.onclick=()=>{$("in").value=x;s.textContent="";s.classList.remove("show");$("in").focus()};s.appendChild(b);s.classList.add("show")}catch{}})},800)};
+const fx=s=>{SM.forEach(([a,b])=>{s=s.split(" "+a).join(" "+b);if(s.startsWith(a))s=b+s.slice(a.length)});return s};
+$("f").onsubmit=async e=>{e.preventDefault();const x=$("in").value.trim();if(!x||!cur)return;
+  if(Date.now()-lastSend<1500){addSys("🙂 …");return}
+  lastSend=Date.now();$("in").value="";typing(0);sN++;$("sug").classList.remove("show");$("emo").classList.remove("show");
+  try{
+    await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,type:"msg",av,text:fx(x),lang:dev,ts:FB.serverTimestamp()});
+    maybeAskFreebolBot(fx(x));
+  }catch{addSys("Could not send. Check connection.")}};
+/* FreebolBot requires a trusted server endpoint using Firebase Admin SDK.
+   Set BOT_API_URL to your deployed HTTPS backend endpoint; never put an AI API key here. */
+const BOT_API_URL="https://YOUR-RENDER-SERVICE.onrender.com/bot";
+let botBusy=false;
+async function maybeAskFreebolBot(message){
+  if(!cur||cur.type!=="room"||botBusy)return;
+  const humans=peers.filter(p=>!p.isMe&&p.presence.st!=="inv"&&p.presence.uid!=="freebolbot");
+  if(humans.length>0)return;
+  if(!BOT_API_URL||BOT_API_URL.includes("YOUR-RENDER-SERVICE")){addSys("FreebolBot needs its backend URL configured before it can reply.");return}
+  botBusy=true;
+  try{
+    const token=await FB.auth.currentUser?.getIdToken();
+    if(!token)return;
+    const r=await fetch(BOT_API_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({roomId:cur.id,message:String(message).slice(0,300),language:dev})});
+    if(!r.ok)throw new Error("Bot endpoint returned "+r.status);
+  }catch(err){console.warn("FreebolBot request failed",err);addSys("FreebolBot is temporarily unavailable.")}
+  finally{botBusy=false}
+}
+const doBuzz=async()=>{if(Date.now()-lastSend<5000){addSys("🔔 …");return}lastSend=Date.now();
+  try{await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,type:"buzz",text:"buzz",lang:dev,ts:FB.serverTimestamp()})}catch{}shake()};
+const allRooms=()=>ROOMS.concat(extra);
+function loadRooms(){FB.onValue(FB.query(FB.ref(FB.db,"roomsmeta"),FB.limitToLast(40)),s=>{extra=Object.entries(s.val()||{}).filter(([id])=>!ROOMS.some(r=>r.id===id)).map(([id,v])=>({id,name:String(v.name||id).slice(0,24),icon:"💬"}))})}
+async function newRoom(){const n=(prompt("Room name (2-24 characters)")||"").trim().slice(0,24);if(n.length<2)return;
+  let id=n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");if(id.length<2)id="r"+Math.random().toString(36).slice(2,8);
+  if(allRooms().some(r=>r.id===id))id+="-"+Math.random().toString(36).slice(2,5);
+  try{await FB.set(FB.ref(FB.db,"roomsmeta/"+id),{name:n,icon:"💬",by:uid,ts:FB.serverTimestamp()})}catch{addSys("Could not create room");return}
+  $("sh").classList.remove("show");enter({type:"room",id,name:n,icon:"💬",path:"messages/"+id})}
+function trayActions(){const r=document.createElement("div");r.style.cssText="grid-column:1/-1;display:flex;gap:8px;margin-bottom:4px";
+  [["📷 Photo",()=>$("pic").click()],["📎 File (25 MB)",()=>$("filepick").click()],["🔔 Buzz",()=>doBuzz()]].forEach(([n,f])=>{const b=document.createElement("button");b.type="button";b.className="mini2";b.textContent=n;b.onclick=()=>{$("emo").classList.remove("show");f()};r.appendChild(b)});$("emo").prepend(r)}
+function shrink(f){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{let w=360,h=Math.round(im.height*w/im.width);if(im.width<w){w=im.width;h=im.height}
+  const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);let q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>60000&&q>.2){q-=.1;u=c.toDataURL("image/jpeg",q)}u.length>60000?no():ok(u)};im.onerror=no;im.src=URL.createObjectURL(f)})}
+$("pic").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f||!/^image\//.test(f.type)||!cur)return;
+  try{const u=await shrink(f);await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,av,type:"img",text:"📷",img:u,lang:dev,ts:FB.serverTimestamp()})}catch{addSys("Could not send photo")}};
+const MAX_FILE_BYTES=25*1024*1024;
+const safeFileName=n=>String(n||"file").replace(/[\\\\/\\0-\\x1f\\x7f]/g,"_").slice(0,120)||"file";
+$("attach").onclick=()=>{if(!cur){addSys("Enter a room or chat first.");return}$("filepick").click()};
+$("filepick").onchange=async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value="";
+  if(!f||!cur)return;
+  if(f.size>MAX_FILE_BYTES){addSys("File is larger than 25 MB.");return}
+  if(f.size===0){addSys("This file is empty.");return}
+  if(!f.type||(!f.type.startsWith("image/")&&!f.type.startsWith("video/")&&!["application/pdf","text/plain","application/zip","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation"].includes(f.type))){
+    if(!confirm("This file type is not on the common allowlist. Upload anyway? Only share files you trust."))return;
+  }
+  const note=$("uploadnote");note.textContent="Uploading "+safeFileName(f.name)+"…";
+  const path="uploads/"+(cur.type==="dm"?"dm":"rooms")+"/"+cur.id+"/"+uid+"/"+Date.now()+"_"+safeFileName(f.name);
+  try{
+    const ref=FB.storageApi.ref(FB.storage,path);
+    const task=FB.storageApi.uploadBytesResumable(ref,f,{contentType:f.type||"application/octet-stream",customMetadata:{ownerUid:uid,chatId:cur.id}});
+    await new Promise((resolve,reject)=>task.on("state_changed",snap=>{const pct=snap.totalBytes?Math.round(snap.bytesTransferred/snap.totalBytes*100):0;note.textContent="Uploading… "+pct+"%";},reject,resolve));
+    const url=await FB.storageApi.getDownloadURL(task.snapshot.ref);
+    await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,type:"file",text:"📎 "+safeFileName(f.name),fileUrl:url,filePath:path,fileName:safeFileName(f.name),mime:f.type||"application/octet-stream",size:f.size,lang:dev,ts:FB.serverTimestamp()});
+    note.textContent="Upload complete.";setTimeout(()=>{if(note.textContent==="Upload complete.")note.textContent=""},3500);
+  }catch(err){console.error("File upload failed",err);note.textContent="Upload failed. Check Firebase Storage setup and rules."}
+};
+function typing(on=1){if(!pr)return;clearTimeout(typT);
+  if(on){const n=Date.now();if(n-lastTyp>2000){lastTyp=n;FB.update(pr,{typ:true})}typT=setTimeout(()=>typing(0),3000)}else{lastTyp=0;FB.update(pr,{typ:false})}}
+function showTyp(){const n=peers.filter(p=>!p.isMe&&p.presence.typ).map(p=>p.presence.name);$("typ").textContent=n.length?"✍️ "+n.slice(0,2).join(", ")+"…":""}
+let actx=null;function ping(){if(!snd)return;try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.value=.05;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+.12)}catch{}}
+function notify(){ping();if(document.hidden){unread++;document.title="("+unread+") Free_bol"}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){unread=0;document.title="Free_bol – Free World Chat"}});
+/* ===== 1-to-1 voice / video calls (WebRTC, signalling through Firebase) ===== */
+const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
+async function prep(video,pair){try{ls=await navigator.mediaDevices.getUserMedia({audio:true,video})}catch{addSys("Allow microphone / camera to call");return false}
+  pc=new RTCPeerConnection(ICE);callPair=pair;ls.getTracks().forEach(x=>pc.addTrack(x,ls));
+  pc.ontrack=e=>{$("rv").srcObject=e.streams[0]};
+  pc.onicecandidate=e=>{if(e.candidate)FB.push(FB.ref(FB.db,"calls/"+pair+"/ice/"+uid),e.candidate.toJSON())};
+  pc.onconnectionstatechange=()=>{const st=pc&&pc.connectionState;$("cst").textContent=st==="connected"?"🟢 Connected":"…";if(st==="failed"||st==="closed")endCall()};
+  let seen=false;callUnsubs.push(FB.onValue(FB.ref(FB.db,"calls/"+pair),s=>{if(s.val()!==null)seen=true;else if(seen)endCall(true)}));
+  $("lv").srcObject=ls;$("lv").style.display=video?"":"none";$("call").classList.add("show");$("cst").textContent="…";return true}
+function listenIce(pair,other){callUnsubs.push(FB.onChildAdded(FB.ref(FB.db,"calls/"+pair+"/ice/"+other),async s=>{while(pc&&!pc.remoteDescription)await new Promise(r=>setTimeout(r,250));if(pc)pc.addIceCandidate(s.val()).catch(()=>{})}))}
+async function startCall(video){const d=cur&&dms[cur.id];if(!d||pc)return;if(!await prep(video,cur.id))return;
+  const o=await pc.createOffer();await pc.setLocalDescription(o);
+  await FB.set(FB.ref(FB.db,"calls/"+cur.id),{from:uid,video:!!video,offer:{type:o.type,sdp:o.sdp}});
+  await FB.set(FB.ref(FB.db,"inbox/"+d.uid),{from:uid,name:nick,pair:cur.id,video:!!video,ts:FB.serverTimestamp()});
+  callUnsubs.push(FB.onValue(FB.ref(FB.db,"calls/"+cur.id+"/answer"),async s=>{const a=s.val();if(a&&pc&&!pc.currentRemoteDescription)await pc.setRemoteDescription(a)}));
+  listenIce(cur.id,d.uid)}
+async function acceptCall(v){const s=await FB.get(FB.ref(FB.db,"calls/"+v.pair)),c=s.val();if(!c||!c.offer){addSys("Call ended");return}
+  if(!await prep(!!c.video,v.pair))return;await pc.setRemoteDescription(c.offer);const a=await pc.createAnswer();await pc.setLocalDescription(a);
+  await FB.set(FB.ref(FB.db,"calls/"+v.pair+"/answer"),{type:a.type,sdp:a.sdp});listenIce(v.pair,v.from)}
+async function endCall(remote){const p=callPair;callUnsubs.forEach(f=>{try{f()}catch{}});callUnsubs=[];
+  if(ls){ls.getTracks().forEach(x=>x.stop());ls=null}if(pc){try{pc.close()}catch{}pc=null}callPair=null;
+  $("call").classList.remove("show");$("rv").srcObject=null;
+  if(p&&!remote){try{await FB.set(FB.ref(FB.db,"calls/"+p),null);await FB.set(FB.ref(FB.db,"inbox/"+uid),null)}catch{}}}
+function watchInbox(){FB.onValue(FB.ref(FB.db,"inbox/"+uid),s=>{const v=s.val();if(!v||pc)return;
+  $("incn").textContent="📞 "+String(v.name||"?").slice(0,20);$("inct").textContent=v.video?"Video call":"Voice call";$("inc").classList.add("show");
+  let n=0;const iv=setInterval(()=>{if(!$("inc").classList.contains("show")||++n>20)clearInterval(iv);else ping()},1500);
+  $("inca").onclick=async()=>{$("inc").classList.remove("show");await FB.set(FB.ref(FB.db,"inbox/"+uid),null);await acceptCall(v)};
+  $("incd").onclick=async()=>{$("inc").classList.remove("show");await FB.set(FB.ref(FB.db,"inbox/"+uid),null);try{await FB.set(FB.ref(FB.db,"calls/"+v.pair),null)}catch{}}})}
+$("vc").onclick=()=>startCall(false);$("vd").onclick=()=>startCall(true);$("cend").onclick=()=>endCall();
+$("cmic").onclick=()=>{ls&&ls.getAudioTracks().forEach(x=>x.enabled=!x.enabled)};$("ccam").onclick=()=>{ls&&ls.getVideoTracks().forEach(x=>x.enabled=!x.enabled)};
+async function invite(){
+  const u=location.href.split("#")[0],m="Chat with me on Free_bol – free world chat 🌍",e=encodeURIComponent,U=e(u),M=e(m),both=e(m+" "+u);
+  const L=[["WhatsApp","💬","https://wa.me/?text="+both],["Facebook","📘","https://www.facebook.com/sharer/sharer.php?u="+U],["Messenger","🟦","fb-messenger://share?link="+U],
+   ["Instagram","📸","https://www.instagram.com/",1],["TikTok","🎵","https://www.tiktok.com/",1],["Snapchat","👻","https://www.snapchat.com/scan?attachmentUrl="+U],
+   ["Telegram","✈️","https://t.me/share/url?url="+U+"&text="+M],["X (Twitter)","✖️","https://twitter.com/intent/tweet?text="+M+"&url="+U],["LinkedIn","💼","https://www.linkedin.com/sharing/share-offsite/?url="+U],
+   ["Reddit","👽","https://www.reddit.com/submit?url="+U+"&title="+M],["Pinterest","📌","https://pinterest.com/pin/create/button/?url="+U+"&description="+M],["LINE","🟢","https://line.me/R/msg/text/?"+both],
+   ["VK","🔵","https://vk.com/share.php?url="+U],["Viber","🟣","viber://forward?text="+both],["SMS","✉️","sms:?&body="+both],["Email","📧","mailto:?subject=Free_bol&body="+both]];
+  const box=$("docBody");box.textContent="";
+  const h=document.createElement("h2");h.textContent="🔗 Invite";box.appendChild(h);
+  const msg=document.createElement("p");msg.textContent=u;msg.style.wordBreak="break-all";box.appendChild(msg);
+  const cp=async()=>{try{await navigator.clipboard.writeText(u);return true}catch{return false}};
+  const top=document.createElement("button");top.className="btn";top.textContent="📋 Copy link";top.style.marginBottom="10px";
+  top.onclick=async()=>{top.textContent=(await cp())?"✓ Copied":"Press & hold the link to copy"};box.appendChild(top);
+  if(navigator.share){const s=document.createElement("button");s.className="btn";s.textContent="📲 More apps…";s.style.marginBottom="10px";
+    s.onclick=()=>navigator.share({title:"Free_bol",text:m,url:u}).catch(()=>{});box.appendChild(s)}
+  const g=document.createElement("div");g.className="grid";
+  L.forEach(([n,i,href,copy])=>{const a=document.createElement("a");a.className="card";a.href=href;a.target="_blank";a.rel="noopener";
+    a.style.cssText="text-decoration:none;color:inherit;display:block";a.innerHTML="<span></span><small></small>";a.firstChild.textContent=i;a.lastChild.textContent=n;
+    if(copy)a.onclick=async()=>{await cp();note.textContent="Link copied. Paste it in a "+n+" post, story, bio or message."};g.appendChild(a)});
+  box.appendChild(g);
+  const note=document.createElement("p");note.style.marginTop="10px";note.textContent="Instagram and TikTok have no share button for websites, so the link is copied and the app opens: paste it there.";box.appendChild(note);
+  $("doc").classList.add("show")}
+</script></body></html>
