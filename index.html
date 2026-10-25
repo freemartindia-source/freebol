@@ -34,7 +34,7 @@ form{display:flex;gap:8px;align-items:center;padding:10px 12px calc(10px + env(s
 #in{flex:1;min-width:0;background:var(--cd);border:1px solid var(--bd);border-radius:24px;padding:12px 18px;color:var(--tx);font-size:16px;outline:none}
 #in:focus{border-color:var(--pri)}
 .rb{width:42px;height:42px;border-radius:50%;background:var(--cd);border:1px solid var(--bd);font-size:19px;flex:none}
-.send{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2));font-size:18px;color:#fff;flex:none}
+.send{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri2));font-size:18px;color:#fff;flex:none}\n .attach{width:42px;height:42px;border-radius:50%;background:var(--cd);border:1px solid var(--bd);font-size:22px;flex:none}\n .filecard{display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.12);border:1px solid var(--bd);padding:10px;border-radius:12px;max-width:260px}\n .filecard a{color:inherit;overflow-wrap:anywhere;font-size:13px}\n .uploadnote{font-size:12px;color:var(--mu);padding:0 14px 4px;min-height:0}
 .emo{position:absolute;bottom:68px;left:12px;background:var(--pn);border:1px solid var(--bd);border-radius:14px;padding:8px;display:none;grid-template-columns:repeat(8,1fr);gap:2px;z-index:5;max-width:92vw}
 .emo.show{display:grid}.emo button{font-size:22px;padding:4px;border-radius:6px}.emo button:hover{background:var(--cd)}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:50;align-items:flex-end;justify-content:center}
@@ -71,9 +71,9 @@ form{display:flex;gap:8px;align-items:center;padding:10px 12px calc(10px + env(s
   <button class="chip" id="chip"><span id="cI">🌍</span><b id="cN"></b><i>▾</i></button>
   <button class="ppl cb" id="vc">📞</button><button class="ppl cb" id="vd">🎥</button><button class="ppl" id="ppl">0</button></div>
  <div id="msgs" aria-live="polite"></div>
- <div id="typ" class="typ"></div><div id="sug"></div><input type="file" id="pic" accept="image/*" hidden>
+ <div id="typ" class="typ"></div><div id="sug"></div><div id="uploadnote" class="uploadnote" aria-live="polite"></div><input type="file" id="pic" accept="image/*" hidden><input type="file" id="filepick" hidden>
  <form id="f" autocomplete="off"><div class="emo" id="emo"></div>
-  <button type="button" class="rb" id="emb" aria-label="Emoji">🙂</button>
+  <button type="button" class="rb" id="emb" aria-label="Emoji">🙂</button><button type="button" class="attach" id="attach" aria-label="Attach file" title="Attach file up to 25 MB">＋</button>
   <input id="in" maxlength="300" aria-label="Message" enterkeyhint="send">
   <button class="send" aria-label="Send">➤</button></form>
 </div>
@@ -145,8 +145,8 @@ const V="10.14.1",G="https://www.gstatic.com/firebasejs/"+V+"/";
 let FB=null,uid="",nick="",cur=null,pr=null,offs=[],lastSend=0,joinedAt=0,peers=[],buddies={},dms={},trC={},q=Promise.resolve(),blocked=new Set(),stat="on",smsg="",tab="r",extra=[],pc=null,ls=null,callUnsubs=[],callPair=null,snd=true,typT=null,lastTyp=0,unread=0,av=(()=>{try{return localStorage.getItem("fb_av")||"😎"}catch{return "😎"}})(),cc=(()=>{const r=(navigator.language||"").split("-")[1];return r&&r.length===2?String.fromCodePoint(...[...r.toUpperCase()].map(c=>127397+c.charCodeAt())):""})();
 async function boot(){if(FB)return true;
   if(firebaseConfig.apiKey.startsWith("YOUR_")){$("err").textContent="Setup needed: add your Firebase config in index.html";return false}
-  try{const [a,b,c]=await Promise.all([import(G+"firebase-app.js"),import(G+"firebase-auth.js"),import(G+"firebase-database.js")]);
-   const app=a.initializeApp(firebaseConfig);FB={...c,db:c.getDatabase(app)};const au=b.getAuth(app);uid=(await b.signInAnonymously(au)).user.uid;watchInbox();return true}
+  try{const [a,b,c,d]=await Promise.all([import(G+"firebase-app.js"),import(G+"firebase-auth.js"),import(G+"firebase-database.js"),import(G+"firebase-storage.js")]);
+   const app=a.initializeApp(firebaseConfig);FB={...c,db:c.getDatabase(app),storage:d.getStorage(app),storageApi:d};const au=b.getAuth(app);uid=(await b.signInAnonymously(au)).user.uid;watchInbox();return true}
   catch(e){$("err").textContent="Could not connect. Check internet and Firebase setup.";return false}}
 const mm=c=>c==="zh"?"zh-CN":c;
 async function tr(text,from,to){const r=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.slice(0,200))+"&langpair="+mm(from)+"|"+mm(to));
@@ -216,6 +216,13 @@ function render(key,m){
   if(m.type==="img"&&/^data:image\/jpeg;base64,/.test(m.img||"")){const im=document.createElement("img");im.src=m.img;im.className="pic";im.alt="photo";
     im.onclick=()=>{const b=$("docBody");b.textContent="";const z=document.createElement("img");z.src=m.img;z.style.cssText="width:100%;border-radius:12px";b.appendChild(z);$("doc").classList.add("show")};
     const tx=row.querySelector(".tx");tx.textContent="";tx.appendChild(im)}
+  if(m.type==="file"&&typeof m.fileUrl==="string"&&/^https:\/\//i.test(m.fileUrl)){
+    const tx=row.querySelector(".tx");tx.textContent="";
+    const card=document.createElement("div");card.className="filecard";
+    const ico=document.createElement("span");ico.textContent=(m.mime||"").startsWith("image/")?"🖼️":(m.mime||"").startsWith("video/")?"🎬":"📎";card.appendChild(ico);
+    const a=document.createElement("a");a.href=m.fileUrl;a.target="_blank";a.rel="noopener noreferrer";a.textContent=String(m.fileName||"Download file").slice(0,120);a.download=String(m.fileName||"file").slice(0,120);card.appendChild(a);
+    const info=document.createElement("small");info.textContent=Number(m.size)>0?(Number(m.size)/1048576).toFixed(2)+" MB":"";card.appendChild(info);tx.appendChild(card)
+  }
   row.querySelector(".t").textContent=m.ts?new Date(m.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"";
   const t2=row.querySelector(".trl"),rep=row.querySelector(".rep"),show=v=>{t2.hidden=false;t2.textContent=v};
   if(mine)rep.remove();else rep.onclick=async()=>{if(!confirm("Report this message?"))return;
@@ -238,7 +245,28 @@ const fx=s=>{SM.forEach(([a,b])=>{s=s.split(" "+a).join(" "+b);if(s.startsWith(a
 $("f").onsubmit=async e=>{e.preventDefault();const x=$("in").value.trim();if(!x||!cur)return;
   if(Date.now()-lastSend<1500){addSys("🙂 …");return}
   lastSend=Date.now();$("in").value="";typing(0);sN++;$("sug").classList.remove("show");$("emo").classList.remove("show");
-  try{await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,type:"msg",av,text:fx(x),lang:dev,ts:FB.serverTimestamp()})}catch{addSys("Could not send. Check connection.")}};
+  try{
+    await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,type:"msg",av,text:fx(x),lang:dev,ts:FB.serverTimestamp()});
+    maybeAskFreebolBot(fx(x));
+  }catch{addSys("Could not send. Check connection.")}};
+/* FreebolBot requires a trusted server endpoint using Firebase Admin SDK.
+   Set BOT_API_URL to your deployed HTTPS backend endpoint; never put an AI API key here. */
+const BOT_API_URL="";
+let botBusy=false;
+async function maybeAskFreebolBot(message){
+  if(!cur||cur.type!=="room"||botBusy)return;
+  const humans=peers.filter(p=>!p.isMe&&p.presence.st!=="inv");
+  if(humans.length>0)return;
+  if(!BOT_API_URL){return}
+  botBusy=true;
+  try{
+    const token=await (await import(G+"firebase-auth.js")).getAuth().currentUser?.getIdToken();
+    if(!token)return;
+    const r=await fetch(BOT_API_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({roomId:cur.id,message:String(message).slice(0,300),language:dev})});
+    if(!r.ok)throw new Error("Bot endpoint returned "+r.status);
+  }catch(err){console.warn("FreebolBot request failed",err);addSys("FreebolBot is temporarily unavailable.")}
+  finally{botBusy=false}
+}
 const doBuzz=async()=>{if(Date.now()-lastSend<5000){addSys("🔔 …");return}lastSend=Date.now();
   try{await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,type:"buzz",text:"buzz",lang:dev,ts:FB.serverTimestamp()})}catch{}shake()};
 const allRooms=()=>ROOMS.concat(extra);
@@ -249,11 +277,33 @@ async function newRoom(){const n=(prompt("Room name (2-24 characters)")||"").tri
   try{await FB.set(FB.ref(FB.db,"roomsmeta/"+id),{name:n,icon:"💬",by:uid,ts:FB.serverTimestamp()})}catch{addSys("Could not create room");return}
   $("sh").classList.remove("show");enter({type:"room",id,name:n,icon:"💬",path:"messages/"+id})}
 function trayActions(){const r=document.createElement("div");r.style.cssText="grid-column:1/-1;display:flex;gap:8px;margin-bottom:4px";
-  [["📷 Photo",()=>$("pic").click()],["🔔 Buzz",()=>doBuzz()]].forEach(([n,f])=>{const b=document.createElement("button");b.type="button";b.className="mini2";b.textContent=n;b.onclick=()=>{$("emo").classList.remove("show");f()};r.appendChild(b)});$("emo").prepend(r)}
+  [["📷 Photo",()=>$("pic").click()],["📎 File (25 MB)",()=>$("filepick").click()],["🔔 Buzz",()=>doBuzz()]].forEach(([n,f])=>{const b=document.createElement("button");b.type="button";b.className="mini2";b.textContent=n;b.onclick=()=>{$("emo").classList.remove("show");f()};r.appendChild(b)});$("emo").prepend(r)}
 function shrink(f){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>{let w=360,h=Math.round(im.height*w/im.width);if(im.width<w){w=im.width;h=im.height}
   const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);let q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>60000&&q>.2){q-=.1;u=c.toDataURL("image/jpeg",q)}u.length>60000?no():ok(u)};im.onerror=no;im.src=URL.createObjectURL(f)})}
 $("pic").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f||!/^image\//.test(f.type)||!cur)return;
   try{const u=await shrink(f);await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,av,type:"img",text:"📷",img:u,lang:dev,ts:FB.serverTimestamp()})}catch{addSys("Could not send photo")}};
+const MAX_FILE_BYTES=25*1024*1024;
+const safeFileName=n=>String(n||"file").replace(/[\\\\/\\0-\\x1f\\x7f]/g,"_").slice(0,120)||"file";
+$("attach").onclick=()=>{if(!cur){addSys("Enter a room or chat first.");return}$("filepick").click()};
+$("filepick").onchange=async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value="";
+  if(!f||!cur)return;
+  if(f.size>MAX_FILE_BYTES){addSys("File is larger than 25 MB.");return}
+  if(f.size===0){addSys("This file is empty.");return}
+  if(!f.type||(!f.type.startsWith("image/")&&!f.type.startsWith("video/")&&!["application/pdf","text/plain","application/zip","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation"].includes(f.type))){
+    if(!confirm("This file type is not on the common allowlist. Upload anyway? Only share files you trust."))return;
+  }
+  const note=$("uploadnote");note.textContent="Uploading "+safeFileName(f.name)+"…";
+  const path="uploads/"+(cur.type==="dm"?"dm":"rooms")+"/"+cur.id+"/"+uid+"/"+Date.now()+"_"+safeFileName(f.name);
+  try{
+    const ref=FB.storageApi.ref(FB.storage,path);
+    const task=FB.storageApi.uploadBytesResumable(ref,f,{contentType:f.type||"application/octet-stream",customMetadata:{ownerUid:uid,chatId:cur.id}});
+    await new Promise((resolve,reject)=>task.on("state_changed",snap=>{const pct=snap.totalBytes?Math.round(snap.bytesTransferred/snap.totalBytes*100):0;note.textContent="Uploading… "+pct+"%";},reject,resolve));
+    const url=await FB.storageApi.getDownloadURL(task.snapshot.ref);
+    await FB.push(FB.ref(FB.db,cur.path),{uid,name:nick,type:"file",text:"📎 "+safeFileName(f.name),fileUrl:url,filePath:path,fileName:safeFileName(f.name),mime:f.type||"application/octet-stream",size:f.size,lang:dev,ts:FB.serverTimestamp()});
+    note.textContent="Upload complete.";setTimeout(()=>{if(note.textContent==="Upload complete.")note.textContent=""},3500);
+  }catch(err){console.error("File upload failed",err);note.textContent="Upload failed. Check Firebase Storage setup and rules."}
+};
 function typing(on=1){if(!pr)return;clearTimeout(typT);
   if(on){const n=Date.now();if(n-lastTyp>2000){lastTyp=n;FB.update(pr,{typ:true})}typT=setTimeout(()=>typing(0),3000)}else{lastTyp=0;FB.update(pr,{typ:false})}}
 function showTyp(){const n=peers.filter(p=>!p.isMe&&p.presence.typ).map(p=>p.presence.name);$("typ").textContent=n.length?"✍️ "+n.slice(0,2).join(", ")+"…":""}
